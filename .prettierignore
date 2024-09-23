@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+docs/
+coverage/
+logs/
+public/
+generator/
+# *.config.js
+*.config.cjs
+*.config.mjs
