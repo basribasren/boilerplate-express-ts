@@ -1,0 +1,125 @@
+import { Request, Response, NextFunction } from 'express'
+import Boom from '@hapi/boom'
+import * as {{camelCase name}}Service from './{{name}}.service'
+import { successPayload, SuccessResponse } from '../../helper/payload.handler'
+import { {{camelCase name}}Interface } from './{{name}}.interface'
+
+//TODO generate data {{camelCase name}}
+export const generateData = async (data: {{camelCase name}}Interface) => {
+	try {
+		return {
+			id: data.id,
+			nama: data.nama,
+			// Add any additional fields based on interface
+		}
+	} catch (err: unknown) {
+		if (err instanceof Error) {
+			if ((err as Boom.Boom).output.statusCode === undefined) {
+				throw Boom.boomify(err, { statusCode: 409 })
+			}
+			throw err
+		}
+		throw Boom.boomify(new Error('An unknown error occurred'), { statusCode: 500 })
+	}
+}
+
+//TODO get list {{camelCase name}}
+export const list = async (req: Request, res: Response, next: NextFunction) => {
+	{{camelCase name}}Service
+		.getList(req.body)
+		.then((result) => {
+			const success: SuccessResponse = {
+				statusCode: 200,
+				payload: {
+					message: 'Load List has been success',
+					data: result,
+					type: 'Request Success',
+				},
+			}
+			const payload = successPayload(success, req.url, req.method)
+			res.status(200).send(payload)
+		})
+		.catch((err) => next(err))
+}
+
+//TODO get {{camelCase name}} by params.id
+export const item = (req: Request, res: Response, next: NextFunction) => {
+	{{camelCase name}}Service
+		.getItem(req.body)
+		.then((result) => {
+			const success: SuccessResponse = {
+				statusCode: 200,
+				payload: {
+					message: `Load Item has been success`,
+					data: result,
+					type: 'Request Success',
+				},
+			}
+			const payload = successPayload(success, req.url, req.method)
+			res.status(200).send(payload)
+		})
+		.catch((err) => next(err))
+}
+
+//TODO create {{camelCase name}}
+export const create = (req: Request, res: Response, next: NextFunction) => {
+	generateData(req.body)
+		.then(async (data) => {
+			const item = await {{camelCase name}}Service.create(data)
+			return item
+		})
+		.then((result) => {
+			const success: SuccessResponse = {
+				statusCode: 200,
+				payload: {
+					message: `Item has been Created`,
+					data: result,
+					type: 'Request Success',
+				},
+			}
+			const payload = successPayload(success, req.url, req.method)
+			res.status(201).send(payload)
+		})
+		.catch((err) => next(err))
+}
+
+//TODO update {{camelCase name}} by params.id
+export const update = (req: Request, res: Response, next: NextFunction) => {
+	generateData(req.body)
+		.then(async (data) => {
+			const item = await {{camelCase name}}Service.update(req.params.id, data)
+			return item
+		})
+		.then((result) => {
+			const success: SuccessResponse = {
+				statusCode: 200,
+				payload: {
+					message: `Item has been Updated`,
+					data: result,
+					type: 'Request Success',
+				},
+			}
+			const payload = successPayload(success, req.url, req.method)
+			res.status(201).send(payload)
+		})
+		.catch((err) => next(err))
+}
+
+//TODO delete {{camelCase name}} by params.id
+export const remove = (req: Request, res: Response, next: NextFunction) => {
+	{{camelCase name}}Service
+		.remove(req.params.id)
+		.then((result) => {
+			const success: SuccessResponse = {
+				statusCode: 200,
+				payload: {
+					message: `Item has been Remove`,
+					data: result,
+					type: 'Request Success',
+				},
+			}
+			const payload = successPayload(success, req.url, req.method)
+			res.status(204).send(payload)
+		})
+		.catch((err) => next(err))
+}

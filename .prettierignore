@@ -9,3 +9,4 @@ generator/
 # *.config.js
 *.config.cjs
 *.config.mjs
+*.template.hbs

@@ -1,0 +1,119 @@
+import Boom from '@hapi/boom'
+import { v4 as uuidv4 } from 'uuid'
+import { sequelize } from '../../config/sequelize.config'
+import { {{camelCase name}}Interface } from './{{name}}.interface'
+import {{camelCase name}}Model from '../../database/models/{{name}}'
+
+const {{camelCase name}} = {{camelCase name}}Model(sequelize)
+
+export const generateFilter = async (data: {{camelCase name}}Interface) => {
+	try {
+		const query: Partial<{{camelCase name}}Interface> = {}
+		for (const [key, value] of Object.entries(data)) {
+			switch (key) {
+				case 'page':
+				case 'limit':
+					break
+				case 'id':
+					query.id = value
+					break
+				default:
+					if (key in query) {
+						// Ensure we only assign valid keys
+						query[key as keyof {{camelCase name}}Interface] = value // Type assertion to ensure type safety
+					}
+					break
+			}
+		}
+		return query
+	} catch (err: unknown) {
+		if (err instanceof Error) {
+			if ((err as Boom.Boom).output.statusCode === undefined) {
+				throw Boom.boomify(err, { statusCode: 409 })
+			}
+			throw err
+		}
+		throw Boom.boomify(new Error('An unknown error occurred'), { statusCode: 500 })
+	}
+}
+
+/**
+ * get all list of {{camelCase name}}
+ * @return {[type]} [description]
+ */
+export const getList = async (request: {{camelCase name}}Interface) => {
+	const filters = await generateFilter(request)
+	if (request.page && request.limit) {
+		const page = parseInt(request.page, 10)
+		const limit = parseInt(request.limit, 10)
+		const offset = (page - 1) * limit
+		const { count, rows } = await {{camelCase name}}.findAndCountAll({
+			where: filters,
+			order: [['createdAt', 'DESC']],
+			limit: limit,
+			offset,
+		})
+		return {
+			total: count,
+			totalPages: Math.ceil(count / limit),
+			currentPage: page,
+			perPage: limit,
+			data: rows,
+		}
+	} else {
+		const result = await {{camelCase name}}.findAll({
+			where: filters,
+			order: [['createdAt', 'DESC']],
+		})
+		return result
+	}
+}
+
+export const getItem = async (request: {{camelCase name}}Interface) => {
+	const filters = await generateFilter(request)
+	return await {{camelCase name}}
+		.findOne({ where: filters })
+		.then((result) => {
+			if (!result) throw Boom.notFound('Data Not Found')
+			return result
+		})
+		.catch((err: Error) => {
+			throw Boom.badRequest(`Get data failed: ${err.message}`)
+		})
+}
+
+export const create = async (data: {{camelCase name}}Interface) => {
+	const newData = {
+		...data,
+		id: uuidv4(), // Add the new UUID here
+	}
+	return await {{camelCase name}}
+		.create(newData)
+		.then((result) => {
+			return result
+		})
+		.catch((err: Error) => {
+			throw Boom.badRequest(`Create data failed: ${err.message}`)
+		})
+}
+
+export const update = async (id: string, data: {{camelCase name}}Interface) => {
+	const [affectedRows] = await {{camelCase name}}.update(data, {
+		where: { id },
+		returning: true, // Not available in Sequelize, use findByPk to get updated record
+	})
+	if (affectedRows === 0) {
+		throw Boom.notFound(`Data {{camelCase name}} with id ${id} is Not Found`)
+	}
+	const result = await {{camelCase name}}.findByPk(id)
+	return result
+}
+
+export const remove = async (id: string) => {
+	const record = await {{camelCase name}}.findOne({ where: { id } })
+	if (!record) {
+		throw Boom.notFound(`Data {{camelCase name}} with id ${id} is Not Found`)
+	}
+	const result = await {{camelCase name}}.destroy({ where: { id } })
+	return result
+}

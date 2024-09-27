@@ -1,0 +1,48 @@
+components:
+  schemas:
+    LoginSchema:
+      type: object
+      properties:
+        username:
+          type: string
+          example: basribasren
+        password: 
+          type: string
+          example: admin
+
+    UserSchema:
+      type: object
+      properties:
+        # id:
+          # type: integer
+          # example: 1
+        username:
+          type: string
+          example: basribasren
+        email: 
+          type: string
+          example: basri.basreen@gmail.com
+        password: 
+          type: string
+          example: admin
+      required:
+        # - id
+        - username
+        - email
+        - password
+
+  responses:
+    UserSuccess:
+      content:
+        application/json:
+          schema: 
+            type: object
+            properties:
+              message:
+                type: string
+                example: Load resource success
+              data:
+                $ref: '#/components/schemas/UserSchema'
+              status:
+                type: number
+                example: 200

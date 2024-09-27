@@ -1,0 +1,17 @@
+import { Router } from 'express'
+import * as {{camelCase name}}Controller from './{{name}}.controller'
+
+const router = Router()
+
+// GET /api/{{camelCase name}}
+router.get('/', {{camelCase name}}Controller.list)
+// GET /api/{{camelCase name}}/:id
+router.get('/:id', {{camelCase name}}Controller.item)
+// POST /api/{{camelCase name}}
+router.post('/', {{camelCase name}}Controller.create)
+// PUT /api/{{camelCase name}}/:id
+router.put('/:id', {{camelCase name}}Controller.update)
+// DELETE /api/{{camelCase name}}/:id
+router.delete('/:id', {{camelCase name}}Controller.remove)
+
+export default router
